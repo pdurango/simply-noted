@@ -1,5 +1,6 @@
 package com.silvesla.simplynoted;
 
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.Console;
 import java.io.File;
@@ -32,12 +34,20 @@ public class MainActivity extends AppCompatActivity implements TaskDialog.TaskDi
     private TaskListAdapter listAdapter;
     private List<Task> mTaskList;
     File taskFile;
-    public Button addButton;
+    public FloatingActionButton addButton;
 
+
+    /* TODO
+    Fix task id's
+    Change colors of everything to look pretty
+    Clean code
+    Short press on taak item makes toast pop up saying "Hold to delete"
+    FIrst letter in TextView make a capital
+     */
     @Override
     public void onResume() {
         super.onResume();
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+        //getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
 
     @Override
@@ -57,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements TaskDialog.TaskDi
         listView.setAdapter(listAdapter);
 
         listViewListener();
-        addButton = findViewById(R.id.add_button);
+        addButton = findViewById(R.id.add_fab);
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -74,11 +84,9 @@ public class MainActivity extends AppCompatActivity implements TaskDialog.TaskDi
     @Override
     public void applyText(String task) {
 
-        if (task.equals("") || task.equals("Add a todo")) ;
-        else {
-            mTaskList.add(new Task(1, task, "Date created: " + getDateTime()));
-            listAdapter.notifyDataSetChanged();
-        }
+        mTaskList.add(new Task(1, task, "Date created: " + getDateTime()));
+        listAdapter.notifyDataSetChanged();
+
         writeFile();
     }
 
@@ -92,6 +100,15 @@ public class MainActivity extends AppCompatActivity implements TaskDialog.TaskDi
                 return true;
             }
         });
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapter, View view, int position, long arg) {
+                // TODO Auto-generated method stub
+                Toast.makeText(getApplicationContext(), "Hold to delete", Toast.LENGTH_SHORT).show();
+            }
+
+        });
+
     }
 
     private void writeFile() {
@@ -131,7 +148,7 @@ public class MainActivity extends AppCompatActivity implements TaskDialog.TaskDi
     }
 
     private String getDateTime() {
-        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+        DateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy");
         Date date = new Date();
         return dateFormat.format(date);
     }
