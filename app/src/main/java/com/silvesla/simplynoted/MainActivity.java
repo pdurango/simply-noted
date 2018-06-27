@@ -1,11 +1,13 @@
 package com.silvesla.simplynoted;
 
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -24,12 +26,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements TaskDialog.TaskDialogListener {
 
     private ListView listView;
     private TaskListAdapter listAdapter;
     private List<Task> mTaskList;
     File taskFile;
+    public Button addButton;
 
     @Override
     public void onResume() {
@@ -46,16 +49,37 @@ public class MainActivity extends AppCompatActivity {
         mTaskList = new ArrayList<>();
         taskFile = new File(getFilesDir(), "tasks.txt");
         readFile();
-
         /*
         mTaskList.add(new Task(1, "yes", "no"));
         mTaskList.add(new Task(1, "n0", "y3s"));
         */
-
         listAdapter = new TaskListAdapter(getApplicationContext(), mTaskList);
         listView.setAdapter(listAdapter);
 
         listViewListener();
+        addButton = findViewById(R.id.add_button);
+        addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openDialog();
+            }
+        });
+    }
+
+    public void openDialog() {
+        TaskDialog taskDialog = new TaskDialog();
+        taskDialog.show(getSupportFragmentManager(), "Dialog");
+    }
+
+    @Override
+    public void applyText(String task) {
+
+        if (task.equals("") || task.equals("Add a todo")) ;
+        else {
+            mTaskList.add(new Task(1, task, "Date created: " + getDateTime()));
+            listAdapter.notifyDataSetChanged();
+        }
+        writeFile();
     }
 
     private void listViewListener() {
@@ -87,14 +111,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void readFile()
-    {
+    private void readFile() {
         try {
             FileInputStream fis = new FileInputStream(taskFile);
             ObjectInputStream ois = new ObjectInputStream(fis);
 
-            while(true)
-            {
+            while (true) {
                 Task task = (Task) ois.readObject();
                 mTaskList.add(task);
             }
@@ -106,20 +128,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-    }
-
-    public void addNewItem(View view) {
-
-        TextView addItem = (TextView) findViewById(R.id.task_textview);
-        String item = addItem.getText().toString();
-
-        if (item.equals("") || item.equals("Add a todo")) ;
-        else {
-            mTaskList.add(new Task(1, item, "Date created: " + getDateTime()));
-            listAdapter.notifyDataSetChanged();
-        }
-        addItem.setText("");
-        writeFile();
     }
 
     private String getDateTime() {
