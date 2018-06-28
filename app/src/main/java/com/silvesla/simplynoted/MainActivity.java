@@ -1,25 +1,20 @@
 package com.silvesla.simplynoted;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.Console;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInput;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.text.DateFormat;
@@ -35,14 +30,12 @@ public class MainActivity extends AppCompatActivity implements TaskDialog.TaskDi
     private List<Task> mTaskList;
     File taskFile;
     public FloatingActionButton addButton;
+    private Boolean firstTime = null;
 
 
     /* TODO
     Fix task id's
-    Change colors of everything to look pretty
     Clean code
-    Short press on taak item makes toast pop up saying "Hold to delete"
-    FIrst letter in TextView make a capital
      */
     @Override
     public void onResume() {
@@ -68,6 +61,8 @@ public class MainActivity extends AppCompatActivity implements TaskDialog.TaskDi
 
         listViewListener();
         addButton = findViewById(R.id.add_fab);
+
+        isFirstTime();
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -84,10 +79,12 @@ public class MainActivity extends AppCompatActivity implements TaskDialog.TaskDi
     @Override
     public void applyText(String task) {
 
-        mTaskList.add(new Task(1, task, "Date created: " + getDateTime()));
-        listAdapter.notifyDataSetChanged();
-
-        writeFile();
+        if(task.equals(""));
+        else {
+            mTaskList.add(0, new Task(1, task, "Date created: " + getDateTime()));
+            listAdapter.notifyDataSetChanged();
+            writeFile();
+        }
     }
 
     private void listViewListener() {
@@ -106,9 +103,7 @@ public class MainActivity extends AppCompatActivity implements TaskDialog.TaskDi
                 // TODO Auto-generated method stub
                 Toast.makeText(getApplicationContext(), "Hold to delete", Toast.LENGTH_SHORT).show();
             }
-
         });
-
     }
 
     private void writeFile() {
@@ -151,5 +146,21 @@ public class MainActivity extends AppCompatActivity implements TaskDialog.TaskDi
         DateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy");
         Date date = new Date();
         return dateFormat.format(date);
+    }
+
+    private boolean isFirstTime() {
+        if (firstTime == null) {
+            SharedPreferences mPreferences = this.getSharedPreferences("first_time", Context.MODE_PRIVATE);
+            firstTime = mPreferences.getBoolean("firstTime", true);
+            if (firstTime) {
+                SharedPreferences.Editor editor = mPreferences.edit();
+                editor.putBoolean("firstTime", false);
+                editor.commit();
+
+                mTaskList.add(new Task(1, "Hold me to delete!", ""));
+                listAdapter.notifyDataSetChanged();
+            }
+        }
+        return firstTime;
     }
 }

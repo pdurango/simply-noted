@@ -2,8 +2,8 @@
 <resources>
     <color name="colorPrimary">#4286f4</color>
     <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorAccent">#EB1745</color>
     <color name="backgroundColor">#e2edff</color>
     <color name="taskMain">#093682</color>
-    <color name="taskDate">#0943a5</color>
+    <color name="taskDate">#5492f5</color>
 </resources>
